@@ -1,448 +1,339 @@
-# Timer UVM Verification Environment
+# SPN Cryptographic Unit UVM Verification Environment
 
-A complete SystemVerilog-based verification environment using Universal Verification Methodology (UVM) for digital timer IP verification, including both the design under test (DUT) and comprehensive testbench.
+A comprehensive SystemVerilog-based verification environment using Universal Verification Methodology (UVM) for Substitution-Permutation Network (SPN) cryptographic unit verification and validation.
 
 ## About
 
-This project implements a complete verification environment for a digital timer IP using industry-standard UVM methodology. The project demonstrates advanced verification techniques, comprehensive test coverage, and professional-grade testbench architecture for hardware verification.
+This project implements a complete UVM-based verification environment for a Substitution-Permutation Network (SPN) cryptographic unit. The project demonstrates advanced verification techniques for cryptographic hardware, including encryption/decryption operations, S-box transformations, and key scheduling verification.
 
 ## Project Overview
 
-This UVM-based verification project includes:
-- **Complete Timer IP** - Digital timer design implementation (DUT)
-- **Professional UVM Testbench** - Industry-standard verification framework
-- **Comprehensive Testing** - Multiple test scenarios and edge cases
-- **Coverage-Driven Verification** - Functional and code coverage tracking
-- **Golden Model** - Reference implementation for result comparison
-- **SystemVerilog Implementation** - Modern hardware verification language
+This SPN Crypto Unit verification project includes:
+- **SPN Cryptographic Design** - Complete 16-bit block cipher implementation with 32-bit keys
+- **UVM Verification Framework** - Industry-standard verification methodology
+- **Cryptographic Testing** - Comprehensive encryption/decryption validation
+- **Golden Reference Model** - Bit-accurate reference implementation
+- **Functional Verification** - Complete algorithm and edge case testing
+- **Professional Documentation** - Complete verification planning and results
+
+## Cryptographic Algorithm Overview
+
+### Substitution-Permutation Network (SPN)
+The SPN is a foundational cryptographic structure that combines:
+- **Substitution (S-Box)** - Non-linear confusion operations
+- **Permutation (P-Box)** - Linear diffusion operations  
+- **Key Mixing** - Round key XOR operations
+- **Multi-Round Structure** - 3-round encryption/decryption
+
+### Key Features
+- **Block Size**: 16-bit data blocks
+- **Key Size**: 32-bit symmetric keys
+- **Rounds**: 3 encryption/decryption rounds
+- **S-Box**: 4-bit to 4-bit substitution tables
+- **Permutation**: Rotate left/right by 2 bits
+- **Operations**: Encrypt (01), Decrypt (10), No-op (00), Error (11)
 
 ## File Structure
 
 ```
-timer-uvm-verification-environment/
+SPU_CU_UVM/
 ├── README.md                  # Project documentation
-├── design.sv                  # Timer DUT implementation
-├── sequences.sv               # UVM sequence library
-├── testbench.sv              # Main testbench and DUT instantiation
-├── tests.sv                  # Test case implementations
-├── timer_agent.sv            # UVM agent for timer interface
-├── timer_base_test.sv        # Base test class
-├── timer_driver.sv           # UVM driver implementation
-├── timer_env.sv              # UVM environment
-├── timer_golden_model.sv     # Reference model for comparison
-├── timer_interface.sv        # SystemVerilog interface
-├── timer_monitor.sv          # UVM monitor implementation
-├── timer_scoreboard.sv       # Result checking and analysis
-├── timer_sequencer.sv        # UVM sequencer
-└── timer_transaction.sv      # Transaction/sequence item definitions
+├── design.sv                  # SPN Crypto Unit DUT implementation (spn_cu module)
+└── UVM_CODE.sv               # Complete UVM verification environment
 ```
 
-## Complete Verification Solution
+### File Descriptions
 
-### Design Under Test Implementation
-The `design.sv` file contains a fully functional digital timer with:
+#### Cryptographic Design (`design.sv`)
+- **`spn_cu` module** - Complete SPN implementation featuring:
+  - 4-state FSM (IDLE, PROCESS, DONE, ERROR)
+  - Forward and inverse S-box lookup tables
+  - Key schedule generation (3 round keys from 32-bit master key)
+  - Substitution and permutation functions
+  - Complete 3-round encryption/decryption algorithms
+  - Error handling for undefined opcodes
 
-```systemverilog
-module timer_dut #(
-    parameter WIDTH = 32,
-    parameter PRESCALER_WIDTH = 8
-)(
-    input  logic                    clk,
-    input  logic                    rst_n,
-    input  logic [WIDTH-1:0]        load_value,
-    input  logic [PRESCALER_WIDTH-1:0] prescaler,
-    input  logic                    load,
-    input  logic                    enable,
-    input  logic                    int_enable,
-    output logic [WIDTH-1:0]        count,
-    output logic                    interrupt,
-    output logic                    zero_flag
-);
-
-// Timer implementation with:
-// - Configurable prescaler for clock division
-// - Load operation for setting initial count
-// - Enable control for starting/stopping timer
-// - Interrupt generation on timer expiration
-// - Zero flag indication
-
-endmodule
-```
-
-### Verification Environment Architecture
-
-### Verification Environment Components
-
-#### Design Under Test (DUT)
-- **`design.sv`** - Complete timer IP implementation
-  - Configurable timer functionality
-  - Interrupt generation capabilities
-  - Reset and enable controls
-  - Prescaler support for different time bases
-
-#### Core UVM Components
-- **`timer_env.sv`** - Top-level UVM environment
-- **`timer_agent.sv`** - UVM agent containing driver, monitor, sequencer
-- **`timer_driver.sv`** - Drives stimulus to DUT interfaces
-- **`timer_monitor.sv`** - Observes and collects interface activity
-- **`timer_sequencer.sv`** - Manages sequence execution
-- **`timer_scoreboard.sv`** - Result checking and coverage analysis
-
-#### Test Infrastructure
-- **`timer_base_test.sv`** - Base test class with common functionality
-- **`tests.sv`** - Collection of specific test cases
-- **`testbench.sv`** - Main testbench and DUT instantiation
-- **`timer_interface.sv`** - SystemVerilog interface definitions
-
-#### Verification Utilities
-- **`timer_transaction.sv`** - Transaction objects for stimulus
-- **`sequences.sv`** - UVM sequence library for test scenarios
-- **`timer_golden_model.sv`** - Reference model for expected behavior
+#### UVM Verification Environment (`UVM_CODE.sv`)
+- **Interface Definition** - `spn_interface` with proper clocking blocks
+- **Transaction Class** - `spn_transaction` with constrained randomization
+- **UVM Components** - Driver, monitor, sequencer, agent, environment
+- **Golden Reference Model** - Bit-accurate cryptographic reference
+- **Scoreboard** - Automated result checking and validation
+- **Test Sequences** - Multiple test scenarios and edge cases
+- **Complete Testbench** - Top-level module with DUT instantiation
 
 ## Technologies Used
 
 - **Hardware Description Language**: SystemVerilog
 - **Verification Methodology**: UVM (Universal Verification Methodology)
+- **Cryptographic Domain**: Substitution-Permutation Networks
 - **Simulation Tools**: QuestaSim/ModelSim, VCS, or Xcelium
-- **Coverage Tools**: Built-in SystemVerilog coverage
-- **Build System**: Makefile or simulation scripts
+- **Verification Techniques**: Functional verification and golden model comparison
 - **Version Control**: Git
 
-## Key Features
+## Cryptographic Implementation Details
 
-### Timer Design Features (`design.sv`)
-- **Configurable Width** - Parameterizable timer width
-- **Countdown Operation** - Configurable initial value countdown
-- **Interrupt Generation** - Timer expiration interrupt
-- **Prescaler Support** - Clock division for different time bases
-- **Enable/Disable Control** - Runtime timer control
-- **Synchronous Reset** - Proper reset behavior
-- **Status Indicators** - Timer state and flags
+### S-Box Design
+```systemverilog
+// Forward S-Box (encryption)
+logic [3:0] sbox [16] = '{
+    4'hA, 4'h5, 4'h8, 4'h2, 4'h6, 4'hC, 4'h4, 4'h3,
+    4'h1, 4'h0, 4'hB, 4'h9, 4'hF, 4'hD, 4'h7, 4'hE
+};
 
-### UVM Testbench Features
-- **Functional Verification** - Complete timer functionality testing
-- **Timing Verification** - Accurate timing behavior validation
+// Inverse S-Box (decryption)
+logic [3:0] inv_sbox [16] = '{
+    4'h9, 4'h8, 4'h3, 4'h7, 4'h6, 4'h1, 4'h4, 4'hE,
+    4'h2, 4'hB, 4'h0, 4'hA, 4'h5, 4'hD, 4'hF, 4'hC
+};
+```
+
+### Key Schedule
+```systemverilog
+function logic [15:0] get_round_key(input logic [31:0] key, input logic [1:0] round_num);
+    case (round_num)
+        2'b00: get_round_key = {key[7:0], key[23:16]};   // Round 0
+        2'b01: get_round_key = key[15:0];                // Round 1  
+        2'b10: get_round_key = {key[7:0], key[31:24]};   // Round 2
+        default: get_round_key = 16'h0000;
+    endcase
+endfunction
+```
+
+### Permutation Operations
+```systemverilog
+// Forward permutation (rotate left by 2)
+function logic [15:0] apply_pbox(input logic [15:0] data_in);
+    apply_pbox = {data_in[13:0], data_in[15:14]};
+endfunction
+
+// Inverse permutation (rotate right by 2)  
+function logic [15:0] apply_inv_pbox(input logic [15:0] data_in);
+    apply_inv_pbox = {data_in[1:0], data_in[15:2]};
+endfunction
+```
+
+## UVM Verification Features
+
+### Comprehensive Test Coverage
+- **Encryption Testing** - All encryption paths validated
+- **Decryption Testing** - Complete decryption verification  
+- **Round-by-Round Validation** - Each cryptographic round tested
+- **Key Schedule Testing** - All round key derivations verified
+- **Error Condition Testing** - Invalid opcode handling
 - **Edge Case Testing** - Boundary conditions and corner cases
-- **Reset Testing** - Proper reset behavior verification
-- **Interrupt Testing** - Timer interrupt generation validation
-- **Configuration Testing** - All timer modes and settings
 
-### UVM Implementation
-- **Layered Architecture** - Proper UVM component hierarchy
-- **Reusable Components** - Modular and configurable testbench
-- **Sequence Library** - Comprehensive stimulus generation
-- **Coverage Driven** - Functional and code coverage goals
-- **Constraint Random** - Advanced stimulus generation
+### Advanced UVM Implementation
+- **Constrained Randomization** - Intelligent stimulus generation with cryptographic constraints
+- **Golden Reference Model** - Bit-accurate reference implementation matching DUT exactly
+- **Assertion-Based Verification** - Property-based checking for cryptographic properties
+- **Comprehensive Scoreboard** - Automated pass/fail analysis with detailed reporting
+- **Multiple Test Sequences** - Basic, random, edge case, and corner case testing
 
-### Advanced Verification Features
-- **Golden Model** - Reference implementation for comparison
-- **Scoreboard** - Automated result checking
-- **Coverage Analysis** - Comprehensive coverage tracking
-- **Parameterizable Tests** - Configurable test scenarios
-- **Error Injection** - Fault testing capabilities
+### Test Sequences Implemented
+1. **`spn_basic_sequence`** - Basic encrypt/decrypt/no-op/error testing
+2. **`spn_encrypt_decrypt_sequence`** - Paired encryption/decryption validation
+3. **`spn_random_sequence`** - 30 randomized test cases
+4. **`spn_edge_case_sequence`** - Boundary value testing (0x0000, 0xFFFF, etc.)
+5. **`spn_corner_case_sequence`** - Alternating bits, single bit patterns
 
 ## Getting Started
 
 ### Prerequisites
 - SystemVerilog simulator (QuestaSim, VCS, Xcelium)
-- UVM library (usually included with simulator)
-- Make utility
-- Basic knowledge of UVM methodology
+- UVM library (typically included with simulator)
+- Understanding of cryptographic concepts
+- Knowledge of UVM methodology
 
 ### Environment Setup
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/lamaRimawi/timer-uvm-verification-environment.git
-   cd timer-uvm-verification-environment
+   git clone https://github.com/lamaRimawi/SPU_CU_UVM.git
+   cd SPU_CU_UVM
    ```
 
-2. **Set up simulation environment:**
+2. **Compile and run:**
    ```bash
-   # For QuestaSim/ModelSim
-   export QUESTA_HOME=/path/to/questasim
-   export UVM_HOME=$QUESTA_HOME/uvm-1.2
+   # Compile design and testbench
+   vlog -sv +incdir+$UVM_HOME/src $UVM_HOME/src/uvm_pkg.sv
+   vlog -sv +incdir+. design.sv UVM_CODE.sv
    
-   # For VCS
-   export VCS_HOME=/path/to/vcs
-   export UVM_HOME=$VCS_HOME/etc/uvm
-   ```
-
-3. **Compile and run:**
-   ```bash
-   # Basic compilation
-   make compile
-   
-   # Run specific test
-   make run TEST=timer_basic_test
-   
-   # Run with GUI
-   make run_gui TEST=timer_comprehensive_test
+   # Run specific tests
+   vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test -do "run -all; quit"
    ```
 
 ## Usage
 
-### Running Tests
+### Running Verification Tests
 
 #### Basic Test Execution
 ```bash
-# Run base test
-make run TEST=timer_base_test
+# Run basic functionality test
+vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test -do "run -all; quit"
 
-# Run specific functionality tests
-make run TEST=timer_countdown_test
-make run TEST=timer_interrupt_test
-make run TEST=timer_reset_test
+# Run encrypt-decrypt validation
+vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_encrypt_decrypt_test -do "run -all; quit"
+
+# Run random testing
+vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_random_test -do "run -all; quit"
 ```
 
-#### Advanced Test Options
+#### Advanced Test Scenarios
 ```bash
-# Run with coverage
-make run TEST=timer_base_test COV=1
+# Run edge case testing
+vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_edge_case_test -do "run -all; quit"
 
-# Run with specific seed
-make run TEST=timer_random_test SEED=12345
+# Run corner case testing  
+vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_corner_case_test -do "run -all; quit"
 
-# Run multiple iterations
-make run TEST=timer_stress_test ITERATIONS=100
+# Default test (corner case)
+vsim -c spn_cu_uvm_tb -do "run -all; quit"
 ```
 
 #### GUI Debug Mode
 ```bash
 # Open simulator GUI for debugging
-make debug TEST=timer_base_test
+vsim spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test
 
-# Run with waveform generation
-make run TEST=timer_base_test WAVES=1
-```
-
-### Test Configuration
-
-#### Makefile Example
-```makefile
-# Simulation setup
-SIMULATOR = questasim
-UVM_VERSION = uvm-1.2
-TOP_MODULE = timer_tb
-
-# Source files
-DESIGN_FILES = design.sv
-TB_FILES = timer_interface.sv timer_transaction.sv timer_driver.sv \
-           timer_monitor.sv timer_agent.sv timer_env.sv \
-           timer_base_test.sv tests.sv testbench.sv
-
-# Compilation targets
-compile:
-	vlog -sv +incdir+$(UVM_HOME)/src $(UVM_HOME)/src/uvm_pkg.sv
-	vlog -sv +incdir+. $(DESIGN_FILES) $(TB_FILES)
-
-# Simulation targets
-run:
-	vsim -c $(TOP_MODULE) +UVM_TESTNAME=$(TEST) -do "run -all; quit"
-
-run_gui:
-	vsim $(TOP_MODULE) +UVM_TESTNAME=$(TEST)
+# Generate waveforms (VCD format)
+vsim spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test -wlf waves.wlf
 ```
 
 ## Test Scenarios
 
-### Functional Tests
-1. **Basic Timer Operation**
-   - Timer initialization and configuration
-   - Count-down functionality
-   - Timer expiration detection
+### Cryptographic Verification
+1. **Algorithm Correctness**
+   - S-box substitution accuracy
+   - Permutation operation validation
+   - Key schedule generation testing
+   - Multi-round encryption/decryption
 
-2. **Advanced Features**
-   - Multiple timer modes
-   - Interrupt generation and handling
-   - Timer chaining capabilities
+2. **Cryptographic Properties**
+   - Encryption/decryption symmetry
+   - Key sensitivity testing
+   - Avalanche effect validation
+   - Non-linearity verification
 
 3. **Edge Cases**
+   - All-zero data and keys
+   - All-one data and keys  
    - Boundary value testing
-   - Overflow/underflow conditions
-   - Rapid configuration changes
+   - Single-bit pattern analysis
 
-### Coverage Goals
-- **Functional Coverage**: 100% of timer features
-- **Code Coverage**: >95% statement, branch, condition
-- **Cross Coverage**: Feature interaction scenarios
-- **Assertion Coverage**: All SVA assertions triggered
+### Functional Testing
+1. **State Machine Verification**
+   - IDLE → PROCESS → DONE transitions
+   - Error state handling
+   - Reset behavior validation
 
-## UVM Component Details
+2. **Interface Protocol**
+   - Opcode interpretation (00, 01, 10, 11)
+   - Valid signal generation
+   - Timing behavior verification
 
-### Timer Transaction (`timer_transaction.sv`)
+## Verification Implementation
+
+### Golden Reference Model
+The verification includes a comprehensive golden reference model that exactly matches the DUT implementation:
+
 ```systemverilog
-class timer_transaction extends uvm_sequence_item;
-    rand bit [31:0] timer_value;
-    rand bit [7:0]  prescaler;
-    rand bit        enable;
-    rand bit        interrupt_enable;
+class spn_golden_model extends uvm_component;
+    // Exact S-box and inverse S-box matching DUT
+    // Identical key schedule implementation  
+    // Bit-accurate encryption/decryption algorithms
+    // Precise state machine modeling
+endclass
+```
+
+### Constrained Randomization
+```systemverilog
+class spn_transaction extends uvm_sequence_item;
+    rand logic [1:0]  opcode;
+    rand logic [15:0] data_in; 
+    rand logic [31:0] secret_key;
     
-    constraint valid_timer_c {
-        timer_value inside {[1:32'hFFFFFFFF]};
-        prescaler inside {[1:255]};
+    constraint opcode_c {
+        opcode inside {2'b00, 2'b01, 2'b10, 2'b11};
+        opcode dist {2'b01 := 40, 2'b10 := 40, 2'b00 := 10, 2'b11 := 10};
     }
     
-    `uvm_object_utils_begin(timer_transaction)
-        `uvm_field_int(timer_value, UVM_ALL_ON)
-        `uvm_field_int(prescaler, UVM_ALL_ON)
-        `uvm_field_int(enable, UVM_ALL_ON)
-        `uvm_field_int(interrupt_enable, UVM_ALL_ON)
-    `uvm_object_utils_end
+    constraint data_c { data_in != 16'h0000; }  // Meaningful test data
+    constraint key_c { secret_key != 32'h00000000; }  // Non-zero keys
 endclass
 ```
 
-### Timer Driver (`timer_driver.sv`)
-```systemverilog
-class timer_driver extends uvm_driver #(timer_transaction);
-    virtual timer_interface vif;
-    
-    function new(string name, uvm_component parent);
-        super.new(name, parent);
-    endfunction
-    
-    virtual task run_phase(uvm_phase phase);
-        timer_transaction req;
-        
-        forever begin
-            seq_item_port.get_next_item(req);
-            drive_transaction(req);
-            seq_item_port.item_done();
-        end
-    endtask
-    
-    virtual task drive_transaction(timer_transaction req);
-        @(posedge vif.clk);
-        vif.timer_load <= req.timer_value;
-        vif.prescaler <= req.prescaler;
-        vif.enable <= req.enable;
-        vif.int_enable <= req.interrupt_enable;
-        @(posedge vif.clk);
-    endtask
-endclass
-```
-
-### Sequences Library (`sequences.sv`)
-```systemverilog
-// Basic timer sequence
-class timer_basic_seq extends uvm_sequence #(timer_transaction);
-    `uvm_object_utils(timer_basic_seq)
-    
-    virtual task body();
-        timer_transaction req;
-        
-        req = timer_transaction::type_id::create("req");
-        start_item(req);
-        assert(req.randomize() with {
-            timer_value inside {[100:1000]};
-            enable == 1;
-        });
-        finish_item(req);
-    endtask
-endclass
-
-// Stress test sequence
-class timer_stress_seq extends uvm_sequence #(timer_transaction);
-    `uvm_object_utils(timer_stress_seq)
-    
-    virtual task body();
-        repeat(100) begin
-            timer_transaction req = timer_transaction::type_id::create("req");
-            start_item(req);
-            assert(req.randomize());
-            finish_item(req);
-        end
-    endtask
-endclass
-```
-
-## Coverage Implementation
-
-### Functional Coverage
-```systemverilog
-covergroup timer_cg @(posedge clk);
-    timer_value_cp: coverpoint timer_load {
-        bins low_values = {[0:100]};
-        bins mid_values = {[101:1000]};
-        bins high_values = {[1001:$]};
-    }
-    
-    prescaler_cp: coverpoint prescaler {
-        bins small = {[1:10]};
-        bins medium = {[11:100]};
-        bins large = {[101:255]};
-    }
-    
-    cross_coverage: cross timer_value_cp, prescaler_cp;
-endgroup
-```
-
-### Assertions
-```systemverilog
-// Timer countdown assertion
-property timer_countdown_p;
-    @(posedge clk) disable iff (!rst_n)
-    (enable && timer_count > 0) |=> (timer_count == $past(timer_count) - 1);
-endproperty
-assert_timer_countdown: assert property(timer_countdown_p);
-
-// Interrupt generation assertion
-property interrupt_generation_p;
-    @(posedge clk) disable iff (!rst_n)
-    (timer_count == 0 && int_enable) |-> interrupt;
-endproperty
-assert_interrupt: assert property(interrupt_generation_p);
-```
-
-## Learning Outcomes
+## Key Learning Outcomes
 
 ### Technical Skills Developed
-- **UVM Methodology** - Industry-standard verification framework
-- **SystemVerilog** - Advanced hardware verification language
-- **Verification Planning** - Systematic test strategy development
-- **Coverage Analysis** - Functional and code coverage techniques
-- **Assertion-Based Verification** - Property specification and checking
+- **Cryptographic Hardware Design** - Understanding of SPN cipher architecture
+- **UVM Expertise** - Advanced verification methodology mastery
+- **SystemVerilog Proficiency** - Modern hardware verification language
+- **Golden Model Development** - Reference implementation techniques
+- **Functional Verification** - Comprehensive test strategy execution
 
-### Industry Knowledge
-- **Digital Design Verification** - Professional verification practices
-- **IP Verification** - Reusable verification components
-- **Testbench Architecture** - Layered verification environment design
-- **Debugging Techniques** - Advanced simulation and debug methods
-- **Quality Metrics** - Coverage and verification closure
+### Cryptographic Knowledge
+- **Block Cipher Design** - Substitution-permutation network principles
+- **S-Box Implementation** - Non-linear substitution techniques
+- **Key Scheduling** - Cryptographic key derivation methods
+- **Encryption/Decryption** - Symmetric cryptography implementation
+- **Security Verification** - Cryptographic property validation
+
+### Industry Applications
+- **Hardware Security** - Cryptographic IP verification
+- **ASIC/FPGA Crypto** - Custom cryptographic accelerator validation
+- **Security Chip Testing** - Hardware security module verification
+- **Blockchain Hardware** - Cryptocurrency mining chip verification
 
 ## Challenges Overcome
 
-1. **UVM Learning Curve** - Mastering complex verification methodology
-2. **SystemVerilog Proficiency** - Advanced language features and constructs
-3. **Coverage Closure** - Achieving comprehensive verification goals
-4. **Debug Complexity** - Troubleshooting complex verification scenarios
-5. **Performance Optimization** - Efficient simulation and runtime
+1. **Cryptographic Accuracy** - Ensuring bit-perfect implementation matching
+2. **S-Box Verification** - Validating complex lookup table operations
+3. **Multi-Round Testing** - Comprehensive round-by-round validation
+4. **Golden Model Precision** - Creating exact reference implementation
+5. **Edge Case Coverage** - Testing cryptographic boundary conditions
 
 ## Future Enhancements
 
-- [ ] **Formal Verification** - Add formal property verification
-- [ ] **Power-Aware Testing** - Low-power verification scenarios
-- [ ] **Protocol Compliance** - Standard protocol verification
-- [ ] **Regression Automation** - Automated test suite execution
-- [ ] **Advanced Coverage** - Temporal and cross-module coverage
-- [ ] **Verification IP Integration** - Standard VIP components
+- [ ] **AES Implementation** - Advanced Encryption Standard verification
+- [ ] **Side-Channel Analysis** - Power and timing attack resistance testing
+- [ ] **Formal Verification** - Mathematical proof of cryptographic properties
+- [ ] **Performance Analysis** - Throughput and latency optimization
+- [ ] **Key Management** - Secure key storage and handling verification
+- [ ] **DPA Protection** - Differential power analysis countermeasures
 
-## Industry Applications
+## Industry Relevance
 
-### Professional Relevance
-- **ASIC/FPGA Verification** - Industry-standard verification approach
-- **IP Verification** - Reusable component verification
-- **System-Level Testing** - Complex system verification
-- **Certification Support** - Safety-critical system verification
+### Professional Applications
+- **Cryptographic IP Companies** - Hardware security verification
+- **Semiconductor Security** - Secure chip design and validation
+- **Defense Contractors** - Military-grade cryptographic systems
+- **Financial Technology** - Hardware security modules for banking
+- **IoT Security** - Embedded cryptographic verification
+
+### Career Paths
+- **Security Verification Engineer** - Cryptographic hardware validation specialist
+- **Hardware Security Architect** - Secure system design leadership
+- **Cryptographic Engineer** - Algorithm implementation and optimization
+- **ASIC Security Designer** - Custom security chip development
+
+## Academic Significance
+
+This project demonstrates mastery of:
+- **Advanced Cryptographic Concepts** - SPN cipher design and implementation
+- **Professional Verification Skills** - Industry-standard UVM methodology
+- **Hardware Security Knowledge** - Cryptographic hardware verification
+- **Golden Model Development** - Reference implementation techniques
+- **Comprehensive Testing** - Systematic verification approach
 
 ## Contact
 
 **Lama Rimawi**  
 GitHub: [@lamaRimawi](https://github.com/lamaRimawi)  
-Repository: [timer-uvm-verification-environment](https://github.com/lamaRimawi/timer-uvm-verification-environment)
+Repository: [SPU_CU_UVM](https://github.com/lamaRimawi/SPU_CU_UVM)
 
-This project demonstrates professional-level verification skills using industry-standard UVM methodology for complete digital timer verification with both design and testbench implementation.
+This project showcases advanced cryptographic hardware verification capabilities using professional UVM methodology for secure system validation.
 
 ---
 
-*Project Type: Hardware Verification | Methodology: UVM | Language: SystemVerilog | Status: Complete*
+*Project Type: Cryptographic Hardware Verification | Algorithm: SPN Block Cipher | Methodology: UVM | Language: SystemVerilog | Status: Complete*
