@@ -1,166 +1,227 @@
-# SPN Cryptographic Unit UVM Verification Environment
+# Timer UVM Verification Environment
 
-A comprehensive SystemVerilog-based verification environment using Universal Verification Methodology (UVM) for Substitution-Permutation Network (SPN) cryptographic unit verification and validation.
+A comprehensive SystemVerilog-based verification environment using Universal Verification Methodology (UVM) for a programmable dual-counter timer controller with multiple operating modes and gate control functionality.
 
 ## About
 
-This project implements a complete UVM-based verification environment for a Substitution-Permutation Network (SPN) cryptographic unit. The project demonstrates advanced verification techniques for cryptographic hardware, including encryption/decryption operations, S-box transformations, and key scheduling verification.
+This project implements a complete UVM-based verification environment for a sophisticated timer controller featuring dual independent counters with programmable modes, gate control, and configurable duty cycles. The project demonstrates advanced verification techniques for timing-critical hardware components.
 
 ## Project Overview
 
-This SPN Crypto Unit verification project includes:
-- **SPN Cryptographic Design** - Complete 16-bit block cipher implementation with 32-bit keys
+This Timer verification project includes:
+- **Dual-Counter Timer Design** - Complete programmable timer with two independent 8-bit counters
 - **UVM Verification Framework** - Industry-standard verification methodology
-- **Cryptographic Testing** - Comprehensive encryption/decryption validation
-- **Golden Reference Model** - Bit-accurate reference implementation
-- **Functional Verification** - Complete algorithm and edge case testing
-- **Professional Documentation** - Complete verification planning and results
+- **Golden Reference Model** - Bit-accurate behavioral model matching DUT exactly
+- **Multiple Operating Modes** - 5 different duty cycle modes per counter
+- **Comprehensive Testing** - Register configuration, mode testing, boundary conditions
+- **Gate Control Verification** - Independent enable/disable control for each counter
 
-## Cryptographic Algorithm Overview
+## Timer Controller Features
 
-### Substitution-Permutation Network (SPN)
-The SPN is a foundational cryptographic structure that combines:
-- **Substitution (S-Box)** - Non-linear confusion operations
-- **Permutation (P-Box)** - Linear diffusion operations  
-- **Key Mixing** - Round key XOR operations
-- **Multi-Round Structure** - 3-round encryption/decryption
+### Dual Counter Architecture
+- **Counter 0**: 8-bit programmable counter (valid range: 2-150)
+- **Counter 1**: 8-bit programmable counter (valid range: 50-200)
+- **Independent Control**: Separate gate inputs (g0, g1) and outputs (out0, out1)
+- **Mode Configuration**: 5 operating modes per counter (0-4)
 
-### Key Features
-- **Block Size**: 16-bit data blocks
-- **Key Size**: 32-bit symmetric keys
-- **Rounds**: 3 encryption/decryption rounds
-- **S-Box**: 4-bit to 4-bit substitution tables
-- **Permutation**: Rotate left/right by 2 bits
-- **Operations**: Encrypt (01), Decrypt (10), No-op (00), Error (11)
+### Operating Modes
+Each counter supports 5 distinct operating modes:
+
+| Mode | Description | Duty Cycle | Valid For |
+|------|-------------|------------|-----------|
+| 0 | Pulse Mode | 1/n (n-1 low, 1 high) | Any count |
+| 1 | Inverted Pulse | (n-1)/n (1 low, n-1 high) | Any count |
+| 2 | Square Wave | 50% (n/2 low, n/2 high) | Even counts only |
+| 3 | Asymmetric High | (n+1)/2 low, (n-1)/2 high | Odd counts only |
+| 4 | Asymmetric Low | (n-1)/2 low, (n+1)/2 high | Odd counts only |
+
+### Register Interface
+- **4-bit Data Bus**: Nibble-based register access
+- **2-bit Address**: 4 addressable locations
+- **Two-Phase Write**: Lower nibble followed by upper nibble
+- **Address Map**:
+  - `00`: Counter 0 value register
+  - `01`: Counter 1 value register  
+  - `10`: Control register (mode configuration)
+  - `11`: Reserved/unused
+
+### Control Register Format
+```
+Bit 7-4: Upper nibble (second write)
+Bit 3:   Counter select (c) - 0: Counter0, 1: Counter1
+Bit 2-0: Mode select (000-100 for modes 0-4)
+```
 
 ## File Structure
 
 ```
-SPU_CU_UVM/
-├── README.md                  # Project documentation
-├── design.sv                  # SPN Crypto Unit DUT implementation (spn_cu module)
-└── UVM_CODE.sv               # Complete UVM verification environment
+timer-uvm-verification-environment/
+├── README.md                    # Project documentation
+├── design.sv                    # Timer controller DUT (timer module)
+├── timer_interface.sv           # SystemVerilog interface definition
+├── timer_transaction.sv         # UVM transaction class
+├── timer_sequencer.sv           # UVM sequencer
+├── timer_driver.sv              # UVM driver implementation
+├── timer_monitor.sv             # UVM monitor implementation
+├── timer_golden_model.sv        # Reference model implementation
+├── timer_scoreboard.sv          # Result checking and analysis
+├── timer_agent.sv               # UVM agent
+├── timer_env.sv                 # UVM environment
+├── timer_base_test.sv           # Base test class
+├── sequences.sv                 # Test sequence library
+├── tests.sv                     # Specific test implementations
+└── timer_tb_top.sv              # Top-level testbench
 ```
-
-### File Descriptions
-
-#### Cryptographic Design (`design.sv`)
-- **`spn_cu` module** - Complete SPN implementation featuring:
-  - 4-state FSM (IDLE, PROCESS, DONE, ERROR)
-  - Forward and inverse S-box lookup tables
-  - Key schedule generation (3 round keys from 32-bit master key)
-  - Substitution and permutation functions
-  - Complete 3-round encryption/decryption algorithms
-  - Error handling for undefined opcodes
-
-#### UVM Verification Environment (`UVM_CODE.sv`)
-- **Interface Definition** - `spn_interface` with proper clocking blocks
-- **Transaction Class** - `spn_transaction` with constrained randomization
-- **UVM Components** - Driver, monitor, sequencer, agent, environment
-- **Golden Reference Model** - Bit-accurate cryptographic reference
-- **Scoreboard** - Automated result checking and validation
-- **Test Sequences** - Multiple test scenarios and edge cases
-- **Complete Testbench** - Top-level module with DUT instantiation
 
 ## Technologies Used
 
 - **Hardware Description Language**: SystemVerilog
 - **Verification Methodology**: UVM (Universal Verification Methodology)
-- **Cryptographic Domain**: Substitution-Permutation Networks
+- **Design Domain**: Programmable Timer Controllers
 - **Simulation Tools**: QuestaSim/ModelSim, VCS, or Xcelium
-- **Verification Techniques**: Functional verification and golden model comparison
+- **Verification Techniques**: Golden model comparison, assertion-based verification
 - **Version Control**: Git
 
-## Cryptographic Implementation Details
+## Timer Implementation Details
 
-### S-Box Design
+### Two-Phase Register Writing
 ```systemverilog
-// Forward S-Box (encryption)
-logic [3:0] sbox [16] = '{
-    4'hA, 4'h5, 4'h8, 4'h2, 4'h6, 4'hC, 4'h4, 4'h3,
-    4'h1, 4'h0, 4'hB, 4'h9, 4'hF, 4'hD, 4'h7, 4'hE
-};
-
-// Inverse S-Box (decryption)
-logic [3:0] inv_sbox [16] = '{
-    4'h9, 4'h8, 4'h3, 4'h7, 4'h6, 4'h1, 4'h4, 4'hE,
-    4'h2, 4'hB, 4'h0, 4'hA, 4'h5, 4'hD, 4'hF, 4'hC
-};
+// First write: store lower nibble
+if (!write_phase) begin
+    temp_low <= d;
+    last_addr <= a;
+    write_phase <= 1'b1;
+end 
+// Second write: combine with upper nibble and update register
+else begin
+    if (a == last_addr) begin
+        case (a)
+            2'b00: counter0_reg <= {d, temp_low};  // Counter0 value
+            2'b01: counter1_reg <= {d, temp_low};  // Counter1 value
+            2'b10: begin  // Control register
+                control_reg <= {d, temp_low};
+                if (temp_low[3]) mode1_reg <= temp_low[2:0];  // Counter1 mode
+                else             mode0_reg <= temp_low[2:0];  // Counter0 mode
+            end
+        endcase
+    end
+    write_phase <= 1'b0;
+end
 ```
 
-### Key Schedule
+### Counter Logic with State Tracking
 ```systemverilog
-function logic [15:0] get_round_key(input logic [31:0] key, input logic [1:0] round_num);
-    case (round_num)
-        2'b00: get_round_key = {key[7:0], key[23:16]};   // Round 0
-        2'b01: get_round_key = key[15:0];                // Round 1  
-        2'b10: get_round_key = {key[7:0], key[31:24]};   // Round 2
-        default: get_round_key = 16'h0000;
-    endcase
-endfunction
+// Counter with state-based output generation
+if (g0 && counter0_reg >= 8'd2 && counter0_reg <= 8'd150) begin
+    if ((!g0_prev && g0) || (count0 == 8'd0)) begin
+        count0 <= counter0_reg - 1'b1;  // Load count value
+        state0 <= 8'd0;                 // Reset state position
+    end else begin
+        count0 <= count0 - 1'b1;        // Decrement counter
+        state0 <= state0 + 1'b1;        // Advance state
+    end
+end
 ```
 
-### Permutation Operations
+### Mode-Specific Output Generation
 ```systemverilog
-// Forward permutation (rotate left by 2)
-function logic [15:0] apply_pbox(input logic [15:0] data_in);
-    apply_pbox = {data_in[13:0], data_in[15:14]};
-endfunction
-
-// Inverse permutation (rotate right by 2)  
-function logic [15:0] apply_inv_pbox(input logic [15:0] data_in);
-    apply_inv_pbox = {data_in[1:0], data_in[15:2]};
-endfunction
+case (mode0_reg)
+    3'b000: out0 = (state0 == (counter0_reg - 1'b1)) ? 1'b1 : 1'b0;  // Mode 0
+    3'b001: out0 = (state0 == 8'd0) ? 1'b0 : 1'b1;                   // Mode 1
+    3'b010: out0 = (state0 < (counter0_reg >> 1)) ? 1'b0 : 1'b1;     // Mode 2
+    // ... additional modes
+endcase
 ```
 
-## UVM Verification Features
+## UVM Verification Architecture
 
-### Comprehensive Test Coverage
-- **Encryption Testing** - All encryption paths validated
-- **Decryption Testing** - Complete decryption verification  
-- **Round-by-Round Validation** - Each cryptographic round tested
-- **Key Schedule Testing** - All round key derivations verified
-- **Error Condition Testing** - Invalid opcode handling
-- **Edge Case Testing** - Boundary conditions and corner cases
+### Transaction Definition
+```systemverilog
+class timer_transaction extends uvm_sequence_item;
+    rand logic [3:0] d;      // 4-bit data input
+    rand logic [1:0] a;      // 2-bit address
+    rand logic       g0, g1; // Gate controls
+    logic            out0, out1; // Timer outputs
+    
+    // Transaction tracking
+    typedef enum {WRITE_LOWER, WRITE_UPPER, CONTROL_WRITE, GATE_CONTROL} trans_type_e;
+    trans_type_e trans_type;
+    logic [7:0] full_value;
+    logic [2:0] target_mode;
+endclass
+```
 
-### Advanced UVM Implementation
-- **Constrained Randomization** - Intelligent stimulus generation with cryptographic constraints
-- **Golden Reference Model** - Bit-accurate reference implementation matching DUT exactly
-- **Assertion-Based Verification** - Property-based checking for cryptographic properties
-- **Comprehensive Scoreboard** - Automated pass/fail analysis with detailed reporting
-- **Multiple Test Sequences** - Basic, random, edge case, and corner case testing
+### Golden Reference Model
+The verification includes a comprehensive golden model that exactly matches the DUT:
+- **State Modeling**: Internal counter and mode registers
+- **Two-Phase Writes**: Exact nibble-based register updates  
+- **Counter Logic**: Precise state tracking and countdown behavior
+- **Output Prediction**: Mode-specific duty cycle generation
+- **Gate Control**: Proper freeze/enable behavior
 
-### Test Sequences Implemented
-1. **`spn_basic_sequence`** - Basic encrypt/decrypt/no-op/error testing
-2. **`spn_encrypt_decrypt_sequence`** - Paired encryption/decryption validation
-3. **`spn_random_sequence`** - 30 randomized test cases
-4. **`spn_edge_case_sequence`** - Boundary value testing (0x0000, 0xFFFF, etc.)
-5. **`spn_corner_case_sequence`** - Alternating bits, single bit patterns
+## Test Sequences Implemented
+
+### 1. Register Configuration Sequence
+```systemverilog
+// Configure Counter0 with value 10, mode 1
+// Configure Counter1 with value 60, mode 2
+class timer_register_config_sequence extends timer_base_sequence;
+```
+
+### 2. Gate Control Sequence  
+```systemverilog
+// Test all gate combinations: both on, g0 off, g1 off, both off
+class timer_gate_control_sequence extends timer_base_sequence;
+```
+
+### 3. Mode Testing Sequence
+```systemverilog
+// Test all 5 modes with appropriate count values
+class timer_mode_test_sequence extends timer_base_sequence;
+```
+
+### 4. Boundary Testing Sequence
+```systemverilog
+// Test boundary values: 2,3,149,150 for Counter0; 50,51,199,200 for Counter1
+class timer_boundary_test_sequence extends timer_base_sequence;
+```
+
+### 5. Edge Case Testing Sequence
+```systemverilog
+// Test invalid modes, out-of-range counts, mode/count mismatches
+class timer_edge_case_sequence extends timer_base_sequence;
+```
+
+### 6. Random Testing Sequence
+```systemverilog
+// Constrained random testing across all parameters
+class timer_random_sequence extends timer_base_sequence;
+```
 
 ## Getting Started
 
 ### Prerequisites
 - SystemVerilog simulator (QuestaSim, VCS, Xcelium)
 - UVM library (typically included with simulator)
-- Understanding of cryptographic concepts
+- Understanding of timer/counter concepts
 - Knowledge of UVM methodology
 
 ### Environment Setup
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/lamaRimawi/SPU_CU_UVM.git
-   cd SPU_CU_UVM
+   git clone https://github.com/lamaRimawi/timer-uvm-verification-environment.git
+   cd timer-uvm-verification-environment
    ```
 
 2. **Compile and run:**
    ```bash
    # Compile design and testbench
    vlog -sv +incdir+$UVM_HOME/src $UVM_HOME/src/uvm_pkg.sv
-   vlog -sv +incdir+. design.sv UVM_CODE.sv
+   vlog -sv +incdir+. *.sv
    
    # Run specific tests
-   vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test -do "run -all; quit"
+   vsim -c timer_tb_top +UVM_TESTNAME=timer_basic_test -do "run -all; quit"
    ```
 
 ## Usage
@@ -169,171 +230,121 @@ endfunction
 
 #### Basic Test Execution
 ```bash
-# Run basic functionality test
-vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test -do "run -all; quit"
+# Run basic functionality test  
+vsim -c timer_tb_top +UVM_TESTNAME=timer_basic_test -do "run -all; quit"
 
-# Run encrypt-decrypt validation
-vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_encrypt_decrypt_test -do "run -all; quit"
+# Run comprehensive test suite
+vsim -c timer_tb_top +UVM_TESTNAME=timer_comprehensive_test -do "run -all; quit"
 
 # Run random testing
-vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_random_test -do "run -all; quit"
-```
-
-#### Advanced Test Scenarios
-```bash
-# Run edge case testing
-vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_edge_case_test -do "run -all; quit"
-
-# Run corner case testing  
-vsim -c spn_cu_uvm_tb +UVM_TESTNAME=spn_corner_case_test -do "run -all; quit"
-
-# Default test (corner case)
-vsim -c spn_cu_uvm_tb -do "run -all; quit"
+vsim -c timer_tb_top +UVM_TESTNAME=timer_random_test -do "run -all; quit"
 ```
 
 #### GUI Debug Mode
 ```bash
 # Open simulator GUI for debugging
-vsim spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test
+vsim timer_tb_top +UVM_TESTNAME=timer_basic_test
 
-# Generate waveforms (VCD format)
-vsim spn_cu_uvm_tb +UVM_TESTNAME=spn_basic_test -wlf waves.wlf
+# Generate waveforms for analysis
+vsim timer_tb_top +UVM_TESTNAME=timer_comprehensive_test -wlf timer_waves.wlf
 ```
 
 ## Test Scenarios
 
-### Cryptographic Verification
-1. **Algorithm Correctness**
-   - S-box substitution accuracy
-   - Permutation operation validation
-   - Key schedule generation testing
-   - Multi-round encryption/decryption
+### Functional Verification
+1. **Register Interface Testing**
+   - Two-phase nibble writing mechanism
+   - Address decoding verification  
+   - Control register mode updates
+   - Invalid address handling
 
-2. **Cryptographic Properties**
-   - Encryption/decryption symmetry
-   - Key sensitivity testing
-   - Avalanche effect validation
-   - Non-linearity verification
+2. **Counter Operation Testing**
+   - Valid range enforcement (2-150, 50-200)
+   - State tracking and countdown behavior
+   - Gate control functionality
+   - Counter reload on expiration
 
-3. **Edge Cases**
-   - All-zero data and keys
-   - All-one data and keys  
-   - Boundary value testing
-   - Single-bit pattern analysis
+3. **Mode Verification**
+   - All 5 operating modes per counter
+   - Mode-specific duty cycle generation
+   - Even/odd count validation for restricted modes
+   - Invalid mode handling
 
-### Functional Testing
-1. **State Machine Verification**
-   - IDLE → PROCESS → DONE transitions
-   - Error state handling
-   - Reset behavior validation
+### Edge Case Testing
+1. **Boundary Conditions**
+   - Minimum and maximum count values
+   - Mode transitions at boundaries
+   - Gate edge detection
 
-2. **Interface Protocol**
-   - Opcode interpretation (00, 01, 10, 11)
-   - Valid signal generation
-   - Timing behavior verification
-
-## Verification Implementation
-
-### Golden Reference Model
-The verification includes a comprehensive golden reference model that exactly matches the DUT implementation:
-
-```systemverilog
-class spn_golden_model extends uvm_component;
-    // Exact S-box and inverse S-box matching DUT
-    // Identical key schedule implementation  
-    // Bit-accurate encryption/decryption algorithms
-    // Precise state machine modeling
-endclass
-```
-
-### Constrained Randomization
-```systemverilog
-class spn_transaction extends uvm_sequence_item;
-    rand logic [1:0]  opcode;
-    rand logic [15:0] data_in; 
-    rand logic [31:0] secret_key;
-    
-    constraint opcode_c {
-        opcode inside {2'b00, 2'b01, 2'b10, 2'b11};
-        opcode dist {2'b01 := 40, 2'b10 := 40, 2'b00 := 10, 2'b11 := 10};
-    }
-    
-    constraint data_c { data_in != 16'h0000; }  // Meaningful test data
-    constraint key_c { secret_key != 32'h00000000; }  // Non-zero keys
-endclass
-```
+2. **Error Conditions**
+   - Out-of-range count values
+   - Invalid mode configurations
+   - Mode/count compatibility mismatches
 
 ## Key Learning Outcomes
 
 ### Technical Skills Developed
-- **Cryptographic Hardware Design** - Understanding of SPN cipher architecture
+- **Timer/Counter Design** - Understanding of programmable timer architectures
 - **UVM Expertise** - Advanced verification methodology mastery
 - **SystemVerilog Proficiency** - Modern hardware verification language
-- **Golden Model Development** - Reference implementation techniques
-- **Functional Verification** - Comprehensive test strategy execution
+- **Golden Model Development** - Bit-accurate reference implementation
+- **State Machine Verification** - Complex state tracking validation
 
-### Cryptographic Knowledge
-- **Block Cipher Design** - Substitution-permutation network principles
-- **S-Box Implementation** - Non-linear substitution techniques
-- **Key Scheduling** - Cryptographic key derivation methods
-- **Encryption/Decryption** - Symmetric cryptography implementation
-- **Security Verification** - Cryptographic property validation
+### Hardware Design Knowledge
+- **Register Interface Design** - Multi-phase register access protocols
+- **Counter Architecture** - Programmable counting and state machines
+- **Gate Control Logic** - Enable/disable control mechanisms
+- **Duty Cycle Generation** - Various waveform generation techniques
+- **Timing Verification** - Critical timing relationship validation
 
-### Industry Applications
-- **Hardware Security** - Cryptographic IP verification
-- **ASIC/FPGA Crypto** - Custom cryptographic accelerator validation
-- **Security Chip Testing** - Hardware security module verification
-- **Blockchain Hardware** - Cryptocurrency mining chip verification
+## Industry Applications
+
+### Professional Relevance
+- **Timer IP Verification** - Programmable timer block validation
+- **SoC Verification** - System-on-chip timer subsystem testing
+- **Real-Time Systems** - Timing-critical system verification  
+- **Embedded Controllers** - Microcontroller timer peripheral validation
+
+### Career Applications
+- **Verification Engineer** - Hardware verification specialist
+- **Timer/Counter Designer** - Specialized timing circuit design
+- **SoC Architect** - System-level timer integration
+- **Real-Time Systems Engineer** - Timing-critical system development
 
 ## Challenges Overcome
 
-1. **Cryptographic Accuracy** - Ensuring bit-perfect implementation matching
-2. **S-Box Verification** - Validating complex lookup table operations
-3. **Multi-Round Testing** - Comprehensive round-by-round validation
-4. **Golden Model Precision** - Creating exact reference implementation
-5. **Edge Case Coverage** - Testing cryptographic boundary conditions
+1. **Complex State Tracking** - Verifying dual counter state management
+2. **Multi-Phase Register Interface** - Validating nibble-based register writes
+3. **Mode-Specific Behavior** - Testing 5 distinct operating modes per counter
+4. **Golden Model Accuracy** - Creating exact DUT behavioral match
+5. **Timing Relationship Verification** - Ensuring proper duty cycle generation
 
 ## Future Enhancements
 
-- [ ] **AES Implementation** - Advanced Encryption Standard verification
-- [ ] **Side-Channel Analysis** - Power and timing attack resistance testing
-- [ ] **Formal Verification** - Mathematical proof of cryptographic properties
-- [ ] **Performance Analysis** - Throughput and latency optimization
-- [ ] **Key Management** - Secure key storage and handling verification
-- [ ] **DPA Protection** - Differential power analysis countermeasures
-
-## Industry Relevance
-
-### Professional Applications
-- **Cryptographic IP Companies** - Hardware security verification
-- **Semiconductor Security** - Secure chip design and validation
-- **Defense Contractors** - Military-grade cryptographic systems
-- **Financial Technology** - Hardware security modules for banking
-- **IoT Security** - Embedded cryptographic verification
-
-### Career Paths
-- **Security Verification Engineer** - Cryptographic hardware validation specialist
-- **Hardware Security Architect** - Secure system design leadership
-- **Cryptographic Engineer** - Algorithm implementation and optimization
-- **ASIC Security Designer** - Custom security chip development
+- [ ] **Advanced Timer Features** - PWM generation, capture/compare modes
+- [ ] **Interrupt Integration** - Timer overflow and match interrupts
+- [ ] **Cascaded Operation** - Multi-timer chaining capabilities
+- [ ] **Power Management** - Low-power timer operation modes
+- [ ] **Formal Verification** - Property-based timer behavior verification
+- [ ] **Performance Analysis** - Timing accuracy and jitter analysis
 
 ## Academic Significance
 
 This project demonstrates mastery of:
-- **Advanced Cryptographic Concepts** - SPN cipher design and implementation
-- **Professional Verification Skills** - Industry-standard UVM methodology
-- **Hardware Security Knowledge** - Cryptographic hardware verification
-- **Golden Model Development** - Reference implementation techniques
-- **Comprehensive Testing** - Systematic verification approach
+- **Complex Timer Verification** - Multi-mode programmable timer validation
+- **Professional UVM Practices** - Industry-standard verification techniques
+- **Register Interface Verification** - Multi-phase access protocol testing
+- **State Machine Validation** - Complex counter state verification
+- **Golden Model Development** - Precise reference implementation
 
 ## Contact
 
 **Lama Rimawi**  
 GitHub: [@lamaRimawi](https://github.com/lamaRimawi)  
-Repository: [SPU_CU_UVM](https://github.com/lamaRimawi/SPU_CU_UVM)
+Repository: [timer-uvm-verification-environment](https://github.com/lamaRimawi/timer-uvm-verification-environment)
 
-This project showcases advanced cryptographic hardware verification capabilities using professional UVM methodology for secure system validation.
+This project showcases advanced timer verification capabilities using professional UVM methodology for complex programmable timing controllers.
 
 ---
 
-*Project Type: Cryptographic Hardware Verification | Algorithm: SPN Block Cipher | Methodology: UVM | Language: SystemVerilog | Status: Complete*
+*Project Type: Timer/Counter Verification | Design: Programmable Dual Timer | Methodology: UVM | Language: SystemVerilog | Status: Complete*
