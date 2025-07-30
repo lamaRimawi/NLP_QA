@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-# NLP_QA
-=======
-# Digital Verification Timer Project - UVM
+# Timer UVM Verification Environment
 
-A comprehensive SystemVerilog-based verification environment using Universal Verification Methodology (UVM) for timer IP verification and validation.
+A complete SystemVerilog-based verification environment using Universal Verification Methodology (UVM) for digital timer IP verification, including both the design under test (DUT) and comprehensive testbench.
 
 ## About
 
@@ -12,20 +9,21 @@ This project implements a complete verification environment for a digital timer 
 ## Project Overview
 
 This UVM-based verification project includes:
-- **Timer IP Verification** - Complete functional and coverage-driven verification
-- **UVM Methodology** - Industry-standard verification framework implementation
-- **SystemVerilog Testbench** - Professional verification environment
+- **Complete Timer IP** - Digital timer design implementation (DUT)
+- **Professional UVM Testbench** - Industry-standard verification framework
 - **Comprehensive Testing** - Multiple test scenarios and edge cases
-- **Coverage Analysis** - Functional and code coverage tracking
-- **Verification Planning** - Systematic verification approach
+- **Coverage-Driven Verification** - Functional and code coverage tracking
+- **Golden Model** - Reference implementation for result comparison
+- **SystemVerilog Implementation** - Modern hardware verification language
 
 ## File Structure
 
 ```
-DV_Timer_UVM/
+timer-uvm-verification-environment/
 ├── README.md                  # Project documentation
+├── design.sv                  # Timer DUT implementation
 ├── sequences.sv               # UVM sequence library
-├── testbench.sv              # Main testbench components
+├── testbench.sv              # Main testbench and DUT instantiation
 ├── tests.sv                  # Test case implementations
 ├── timer_agent.sv            # UVM agent for timer interface
 ├── timer_base_test.sv        # Base test class
@@ -39,9 +37,48 @@ DV_Timer_UVM/
 └── timer_transaction.sv      # Transaction/sequence item definitions
 ```
 
-## UVM Architecture
+## Complete Verification Solution
+
+### Design Under Test Implementation
+The `design.sv` file contains a fully functional digital timer with:
+
+```systemverilog
+module timer_dut #(
+    parameter WIDTH = 32,
+    parameter PRESCALER_WIDTH = 8
+)(
+    input  logic                    clk,
+    input  logic                    rst_n,
+    input  logic [WIDTH-1:0]        load_value,
+    input  logic [PRESCALER_WIDTH-1:0] prescaler,
+    input  logic                    load,
+    input  logic                    enable,
+    input  logic                    int_enable,
+    output logic [WIDTH-1:0]        count,
+    output logic                    interrupt,
+    output logic                    zero_flag
+);
+
+// Timer implementation with:
+// - Configurable prescaler for clock division
+// - Load operation for setting initial count
+// - Enable control for starting/stopping timer
+// - Interrupt generation on timer expiration
+// - Zero flag indication
+
+endmodule
+```
+
+### Verification Environment Architecture
 
 ### Verification Environment Components
+
+#### Design Under Test (DUT)
+- **`design.sv`** - Complete timer IP implementation
+  - Configurable timer functionality
+  - Interrupt generation capabilities
+  - Reset and enable controls
+  - Prescaler support for different time bases
 
 #### Core UVM Components
 - **`timer_env.sv`** - Top-level UVM environment
@@ -73,12 +110,22 @@ DV_Timer_UVM/
 
 ## Key Features
 
-### Timer IP Verification
+### Timer Design Features (`design.sv`)
+- **Configurable Width** - Parameterizable timer width
+- **Countdown Operation** - Configurable initial value countdown
+- **Interrupt Generation** - Timer expiration interrupt
+- **Prescaler Support** - Clock division for different time bases
+- **Enable/Disable Control** - Runtime timer control
+- **Synchronous Reset** - Proper reset behavior
+- **Status Indicators** - Timer state and flags
+
+### UVM Testbench Features
 - **Functional Verification** - Complete timer functionality testing
 - **Timing Verification** - Accurate timing behavior validation
 - **Edge Case Testing** - Boundary conditions and corner cases
 - **Reset Testing** - Proper reset behavior verification
 - **Interrupt Testing** - Timer interrupt generation validation
+- **Configuration Testing** - All timer modes and settings
 
 ### UVM Implementation
 - **Layered Architecture** - Proper UVM component hierarchy
@@ -106,8 +153,8 @@ DV_Timer_UVM/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/lamaRimawi/DV_Timer_UVM.git
-   cd DV_Timer_UVM
+   git clone https://github.com/lamaRimawi/timer-uvm-verification-environment.git
+   cd timer-uvm-verification-environment
    ```
 
 2. **Set up simulation environment:**
@@ -179,7 +226,7 @@ UVM_VERSION = uvm-1.2
 TOP_MODULE = timer_tb
 
 # Source files
-DESIGN_FILES = timer_dut.sv
+DESIGN_FILES = design.sv
 TB_FILES = timer_interface.sv timer_transaction.sv timer_driver.sv \
            timer_monitor.sv timer_agent.sv timer_env.sv \
            timer_base_test.sv tests.sv testbench.sv
@@ -391,11 +438,11 @@ assert_interrupt: assert property(interrupt_generation_p);
 ## Contact
 
 **Lama Rimawi**  
-GitHub: [@lamaRimawi](https://github.com/lamaRimawi)
+GitHub: [@lamaRimawi](https://github.com/lamaRimawi)  
+Repository: [timer-uvm-verification-environment](https://github.com/lamaRimawi/timer-uvm-verification-environment)
 
-This project demonstrates professional-level verification skills using industry-standard UVM methodology for digital timer IP verification.
+This project demonstrates professional-level verification skills using industry-standard UVM methodology for complete digital timer verification with both design and testbench implementation.
 
 ---
 
 *Project Type: Hardware Verification | Methodology: UVM | Language: SystemVerilog | Status: Complete*
->>>>>>> 27b5cf665c8892fa069d1740509e88208e67b5c3
